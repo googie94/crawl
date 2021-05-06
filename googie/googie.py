@@ -98,11 +98,3 @@ for content in bs.findAll('span', {'class': 'se-fs- se-ff-nanummaruburi'}):
 
 
 
-
-
-
-
-
-
-
-
