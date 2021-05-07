@@ -7,6 +7,10 @@ import io
 sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
 
+import  os, ssl
+if  ( not  os.environ.get ( 'PYTHONHTTPSVERIFY', '') and getattr (ssl, '_create_unverified_context', None)) : 
+	ssl._create_default_https_context =  ssl._create_unverified_context
+
 url = "https://sports.news.naver.com/news.nhn?oid=413&aid=0000118186"
 html = urlopen(url)
 
