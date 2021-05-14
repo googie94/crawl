@@ -5,71 +5,133 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 # 
 import time
+import re
 # # 사용자 인증서 필요
 import  os, ssl
 if  ( not  os.environ.get ( 'PYTHONHTTPSVERIFY', '') and getattr (ssl, '_create_unverified_context', None)) : 
 	ssl._create_default_https_context =  ssl._create_unverified_context
+# 
+import json
+# USER
+payload={}
+headers = {
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36'
+}
+# 
+url_list = []
+# 키워드 = 플랩풋볼
+keyword = '%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC'
+keyword.encode('utf-8')
 
-# # 한글 키워드 인코드(귀멸의 칼날)
-# keyword = '%EA%B7%80%EB%A9%B8%EC%9D%98%20%EC%B9%BC%EB%82%A0'
-# keyword.encode('utf-8')
-# url = 'https://namu.wiki/w/'+keyword
+# ========== 네이버 블로그 ==========
+# 
+# def getTotal(index):
+# 	url = 'https://s.search.naver.com/p/blog/search.naver?where=m_blog&start={}&nlu_query=%7B%22r_category%22%3A%2223%22%7D&ssl=1&mobile_more=1&dkey=0&query='+keyword+'&nx_search_query='+keyword+'&spq=0&rev=44&_callback=jQuery224024759958364615287_1620305685738'.format(index)
+# 	html = urlopen(url)
+# 	bs = BeautifulSoup(html, 'html.parser')
+# 	total = bs.text[53:57]
+# 	total = int(total.replace('"', '').replace(',', ''))
+# 	return total
 
-# # 나무위키에서는 유저 정보가 없으면 막고 있는 것 같음. 유저 정보를 헤더에 담아 요청을 보냄
-# req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+# def getBlogUrl(index):
+# 	url = 'https://s.search.naver.com/p/blog/search.naver?where=m_blog&start={}&nlu_query=%7B%22r_category%22%3A%2223%22%7D&ssl=1&mobile_more=1&dkey=0&query='+keyword+'&nx_search_query='+keyword+'&spq=0&rev=44&_callback=jQuery224024759958364615287_1620305685738'.format(index)
+# 	html = urlopen(url)
+# 	bs = BeautifulSoup(html, 'html.parser')
+# 	hrefs = bs.findAll('a', href = re.compile('(https://m.blog.naver.com/)[^A-Z]*/'))
+# 	global url_list
+# 	for href in hrefs:
+# 		if href.attrs['href'].replace('\\"','').replace(' ','') not in url_list:
+# 			url_list.append(href.attrs['href'].replace('\\"','').replace(' ',''))
+# 	return url_list
+
+# def getBlogPost(url):
+# 	print('===============주소===============')
+# 	print(url)
+# 	html = urlopen(url)
+# 	bs = BeautifulSoup(html, 'html.parser')
+# 	print(bs)
+# 	title = bs.find('div', {'class': 'se-module se-module-text se-title-text'}).text
+# 	print('===============제목===============')
+# 	print(title)
+# 	print('===============내용===============')
+# 	for content in bs.findAll('div', {'class': 'se-module se-module-text'}):
+# 		print(content.get_text())
 
 
-# # 위에 내용은 신경쓰지 않아도 됩니다. 이번주 하기로 한 것에만 집중하면 됩니다.
-# html = urlopen(req)
-# bs = bs(html.read(), 'html.parser')
-# print(bs)
+# # 
+# total = getTotal(1)
+# index = 1
+# while index < total:
+# 	getBlogUrl(index)
+# 	for url in url_list:
+# 		getBlogPost(url)
+# 	index += 15
 
 # ========================================
+# ========== 네이버 카페 ==========
+comment_list = []
+# 
+def getTotal(index):
+	url = 'https://s.search.naver.com/p/cafe/search.naver?abuse=0&ac=0&aq=0&date_from=&date_option=0&date_to=&m=1&nlu_query=%7B%22r_category%22%3A%2223%22%7D&nqx_context=&nx_and_query=&nx_search_hlquery=&nx_search_query=&nx_sub_query=&prdtype=0&prmore=1&qdt=1&query='+keyword+'&qvt=1&rev=44&spq=0&st=rel&stnm=rel&where=m_article&start={}&display=15&is_person=0&_callback=jQuery22407496630039182579_1620346928758'.format(index)
+	html = urlopen(url)
+	bs = BeautifulSoup(html, 'html.parser')
+	total = bs.text[53:57]
+	total = int(total.replace('"', '').replace(',', ''))
+	return total
+
+def getBlogUrl(index):
+	url = 'https://s.search.naver.com/p/cafe/search.naver?abuse=0&ac=0&aq=0&date_from=&date_option=0&date_to=&m=1&nlu_query=%7B%22r_category%22%3A%2223%22%7D&nqx_context=&nx_and_query=&nx_search_hlquery=&nx_search_query=&nx_sub_query=&prdtype=0&prmore=1&qdt=1&query='+keyword+'&qvt=1&rev=44&spq=0&st=rel&stnm=rel&where=m_article&start={}&display=15&is_person=0&_callback=jQuery22407496630039182579_1620346928758'.format(index)
+	html = urlopen(url)
+	bs = BeautifulSoup(html, 'html.parser')
+	hrefs = bs.findAll('a', href = re.compile('(https://m.cafe.naver.com/)[^A-Z]*/'))
+	global url_list
+	for href in hrefs:
+		if href.attrs['href'].replace('\\"','').replace(' ','') not in url_list:
+			url_list.append(href.attrs['href'].replace('\\"','').replace(' ',''))
+	return url_list
+
+def getBlogPost(url):
+	print('===============주소===============')
+	print(url)
+	url = url[25:]
+	find_cafe_index = url.find('/')
+	find_art_index = url.find('?')
+	find_code_index = url.find('=')
+	cafe_nm = url[:find_cafe_index]
+	cafe_id = url[find_cafe_index+1:find_art_index]
+	cafe_code = url[find_code_index+1:]
+	cafe_code = cafe_code.replace('=', '%3D')
+	api_url = 'https://apis.naver.com/cafe-web/cafe-articleapi/v2/cafes/{}/articles/{}?useCafeId=false&art={}&query={}'.format(cafe_nm, cafe_id, cafe_code, keyword)
+	# 				https://m.cafe.naver.com/ca-fe/web/cafes/re4mo/articles/1373558?useCafeId=false&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg%3D%3D.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6InJlNG1vIiwiYXJ0aWNsZUlkIjoxMzczNTU4LCJpc3N1ZWRBdCI6MTYyMDM0NzE1Njk1MX0%3D.o7ZbpmIn_4r8qJa8JQeWfcK62kLPmEtfrAaQ8NQrapc%3D&query=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC%ED%9B%84%EA%B8%B0
+	# https://apis.naver.com/cafe-web/cafe-articleapi/v2/cafes/re4mo/articles/1373558?useCafeId=false&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg%3D%3D.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6InJlNG1vIiwiYXJ0aWNsZUlkIjoxMzczNTU4LCJpc3N1ZWRBdCI6MTYyMDM0NzE1Njk1MX0%3D.o7ZbpmIn_4r8qJa8JQeWfcK62kLPmEtfrAaQ8NQrapc%3D&query=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC%ED%9B%84%EA%B8%B0
+	# https://apis.naver.com/cafe-web/cafe-articleapi/v2/cafes/re4mo/articles/1373558?useCafeId%3Dfalse&art%3DZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg%3D%3D.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6InJlNG1vIiwiYXJ0aWNsZUlkIjoxMzczNTU4LCJpc3N1ZWRBdCI6MTYyMDM1MDc4NjI4M30%3D.p5RYyeselnfi9_xsjTxxt-oI_AE3sPBQ1FzArgi-dzc%3D&query%3D%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC%ED%9B%84%EA%B8%B0
+	print('===============api===============')
+	print(api_url)
+	req = requests.get(api_url, headers=headers, data=payload).json()
+	print('===============제목===============')
+	title = req['result']['article']['subject']
+	print(title)
+	content_html = req['result']['article']['contentHtml']
+	bs = BeautifulSoup(content_html, 'html.parser')
+	print('===============내용===============')
+	for content in bs.findAll('div', {'class': 'se-module se-module-text'}):
+		print(content.get_text())
+	print('===============댓글===============')
+	comment_list = req['result']['comments']['items']
+	for comment in comment_list:
+		print(comment['content'])
 
 
 
-url = 'https://blog.naver.com//PostView.nhn?blogId=nam4510&logNo=222301794649&redirect=Dlog&widgetTypeCall=true&directAccess=false'
-html = urlopen(url)
-bs = BeautifulSoup(html, 'html.parser')
-title = bs.find('span', {'class': 'se-fs- se-ff-nanummaruburi'}).text
-print('===============제목===============')
-print(title)
-print('===============내용===============')
-for content in bs.findAll('span', {'class': 'se-fs- se-ff-nanummaruburi'}):
-	print(content.get_text())
 
-
-# ========================================
-
-
-# driver = webdriver.Chrome()
-# driver.implicitly_wait(3)
-
-# # GET URL
-
-# keyword = '%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC'
-# keyword.encode('utf-8')
-# url = 'https://m.cafe.naver.com/ca-fe/web/cafes/re4mo/articles/1513599?useCafeId=false&query='+keyword+'&buid=8957b977-a4ae-4cae-b947-5d0be546d7db&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1ldGMtZm9yLWNvbW1lbnQ.eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjYWZlVHlwZSI6IkNBRkVfSUQiLCJhcnRpY2xlSWQiOjE1MTM1OTksImlzc3VlZEF0IjoxNjIwMjUzNDExMDIzLCJjYWZlSWQiOjEzOTg4MDE2fQ.0tXAbmqJXxSb_RLm4lml8pJyUghH6BkQyh44tUNnAT8'
-# driver.get(url)
-
-
-# # FUNCTIONS
-# def clickSelector(path):
-# 	item = driver.find_element_by_css_selector(path)
-# 	item.click()
-
-# # clickSelector('a.total_dsc')
-# # driver.implicitly_wait(10)
-# content = driver.find_element_by_css_selector('#ct > div:nth-child(1) > div > h2')
-# print(content.text)
-# time.sleep(3)
-# driver.quit()
-
-
-
-
-
-
+# RUN CODE
+total = getTotal(1)
+index = 1
+while index < total:
+	getBlogUrl(index)
+	for url in url_list:
+		getBlogPost(url)
+	index += 15
 
 
 
