@@ -1,5 +1,7 @@
+pip3 install selenium
+
 import requests
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 
 import sys
@@ -7,17 +9,15 @@ import io
 sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
 
-url = "https://cafe.naver.com/re4mo/1509801"
-html = urlopen(url)
+url = "https://m.cafe.naver.com/ca-fe/web/cafes/re4mo/articles/1521375?useCafeId=false&or=m.search.naver.com&query=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC&buid=243694f9-97c6-4793-8187-510c5b693fa8&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1ldGMtZm9yLWNvbW1lbnQ.eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjYWZlVHlwZSI6IkNBRkVfSUQiLCJhcnRpY2xlSWQiOjE1MjEzNzUsImlzc3VlZEF0IjoxNjIwNTUxMTM0NzE4LCJjYWZlSWQiOjEzOTg4MDE2fQ.oqMPhTIuDcsdFUvE4qJKrGR_d5phBy4tUGRCaK3-EFs"
+req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+html = urlopen(req)
 
 bs = BeautifulSoup(html ,'html.parser')
-result = bs.find('h3', {'class': 'title_text'})
+results = bs.find('h2', {'class': 'tit'})
 
-print(result.text)
+print(results.text)
 
-contents = bs.find('div', {'class' : 'se-module se-module-text'})
-
-print(contents.text)
 #urllib = url라이브러리 
 #bs = BeautifulSoup
 #html을 받고 그것에 접근할 수 있게 하는 함수
