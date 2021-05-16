@@ -1,30 +1,27 @@
+import re # 정규식 
+import requests as req # 웹 요청 
+from bs4 import BeautifulSoup # 웹 정보 추출 
+naver_cafe_url = "https://cafe.naver.com/re4mo/1513599" # 네이버 카페 주소 
+naver_cafe_article = "https://cafe.naver.com/nhn?clubid=" 
 
-import requests
-from urllib.request import urlopen, Request
-from bs4 import BeautifulSoup
+url = naver_cafe_url  # https://cafe.naver.com/re4mo 
+res = req.get(url=url) # URL 요청 
+soup = BeautifulSoup(res.text, 'lxml') 
+p_clubid = re.compile(r'var g_sClubId = \"(\w+)\"') # 정규식 설정 
+clubid = p_clubid.findall(str(soup.select('script')[0]))[0] # script태그 내에서 정규식에 해당하는 정보 추출 
 
-import sys
-import io
-sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
-sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
+print(clubid)
 
-<<<<<<< HEAD
-url = "https://m.cafe.naver.com/ca-fe/web/cafes/re4mo/articles/1521375?useCafeId=false&or=m.search.naver.com&query=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC&buid=243694f9-97c6-4793-8187-510c5b693fa8&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1ldGMtZm9yLWNvbW1lbnQ.eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjYWZlVHlwZSI6IkNBRkVfSUQiLCJhcnRpY2xlSWQiOjE1MjEzNzUsImlzc3VlZEF0IjoxNjIwNTUxMTM0NzE4LCJjYWZlSWQiOjEzOTg4MDE2fQ.oqMPhTIuDcsdFUvE4qJKrGR_d5phBy4tUGRCaK3-EFs"
-req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-html = urlopen(req)
-=======
-import  os, ssl
-if  ( not  os.environ.get ( 'PYTHONHTTPSVERIFY', '') and getattr (ssl, '_create_unverified_context', None)) : 
-	ssl._create_default_https_context =  ssl._create_unverified_context
+# https://cafe.naver.com/CafeProfileView.nhn?clubid=21588277
+article_url = naver_cafe_article + clubid
+info_res = req.get(url=article_url)
+soup = BeautifulSoup(info_res.text, 'lxml')
 
-url = "https://sports.news.naver.com/news.nhn?oid=413&aid=0000118186"
-html = urlopen(url)
->>>>>>> d4f0c6a1be61064f698977500a20d55c28ad364f
+ths = soup.select('h3.title_text') 
 
-bs = BeautifulSoup(html ,'html.parser')
-results = bs.find('h2', {'class': 'tit'})
+print(ths)
 
-print(results.text)
+#clubid : 13988016
 
 #urllib = url라이브러리 
 #bs = BeautifulSoup
