@@ -1,25 +1,46 @@
-import re # 정규식 
-import requests as req # 웹 요청 
-from bs4 import BeautifulSoup # 웹 정보 추출 
-naver_cafe_url = "https://cafe.naver.com/re4mo/1513599" # 네이버 카페 주소 
-naver_cafe_article = "https://cafe.naver.com/nhn?clubid=" 
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
 
-url = naver_cafe_url  # https://cafe.naver.com/re4mo 
-res = req.get(url=url) # URL 요청 
-soup = BeautifulSoup(res.text, 'lxml') 
-p_clubid = re.compile(r'var g_sClubId = \"(\w+)\"') # 정규식 설정 
-clubid = p_clubid.findall(str(soup.select('script')[0]))[0] # script태그 내에서 정규식에 해당하는 정보 추출 
+response = requests.get("https://m.cafe.naver.com/ArticleSearchList.nhn?search.query=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC&search.menuid=&search.searchBy=0&search.sortBy=sim&search.clubid=13988016")
 
-print(clubid)
+response.status_code
+200
+dom = BeautifulSoup(response.text, "html.parser")
+post_elements = dom.select("#articleList ul.list_tit li")
+len(post_elements)
+20
+post_element = post_elements[0]
 
-# https://cafe.naver.com/CafeProfileView.nhn?clubid=21588277
-article_url = naver_cafe_article + clubid
-info_res = req.get(url=article_url)
-soup = BeautifulSoup(info_res.text, 'lxml')
+url = post_element.select_one("a").get("href")
+print(url)
 
-ths = soup.select('h3.title_text') 
+title = post_element.select_one("h3").text.strip()
+print(title)
 
-print(ths)
+contents = post_element.select_one("div.post_area").text.strip()
+print(contents)
+
+data = ["title", "url", "contents"]
+df = pd.DataFrame(columns=["Title", "URL"])
+df
+
+-------------------------------------------------------------------
+
+#titles = post_elements.find_element_by_css_selector('h3').text
+
+#for post_element in post_elements:
+    #post_elements.append(h3)
+#print(titles)
+
+#for post_element in post_elements:
+    #url = post_element.select_one("a").get("href")
+    #title = post_element.select_one("a").text.strip()
+    
+    #data = {"URL": url, "Title": title, "contents" : contents}
+    #df.loc[len(df)] = data   # row 에다 추가하는 부분
+#df
+
 
 #clubid : 13988016
 
