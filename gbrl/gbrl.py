@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
+import pandas as pd 
+import numpy as np
 
 response = requests.get("https://m.cafe.naver.com/ArticleSearchList.nhn?search.query=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC&search.menuid=&search.searchBy=0&search.sortBy=sim&search.clubid=13988016")
 
@@ -15,32 +16,20 @@ post_element = post_elements[0]
 url = post_element.select_one("a").get("href")
 print(url)
 
-title = post_element.select_one("h3").text.strip()
+title = post_element.select_one("a").text.strip()
 print(title)
 
-contents = post_element.select_one("div.post_area").text.strip()
-print(contents)
-
-data = ["title", "url", "contents"]
 df = pd.DataFrame(columns=["Title", "URL"])
 df
 
--------------------------------------------------------------------
-
-#titles = post_elements.find_element_by_css_selector('h3').text
-
-#for post_element in post_elements:
-    #post_elements.append(h3)
-#print(titles)
-
-#for post_element in post_elements:
-    #url = post_element.select_one("a").get("href")
-    #title = post_element.select_one("a").text.strip()
+for post_element in post_elements:
+    url = post_element.select_one("a").get("href")
+    title = post_element.select_one("a").text.strip()
     
-    #data = {"URL": url, "Title": title, "contents" : contents}
-    #df.loc[len(df)] = data   # row 에다 추가하는 부분
-#df
+    data = {"URL": url, "Title": title}
+    df.loc[len(df)] = data   # row 에다 추가하는 부분
 
+    
 
 #clubid : 13988016
 
@@ -63,10 +52,13 @@ df
 #git push origin master 
 #commit add  
 
-#parser? , html.read?
-
 #자바스크립트 방식 로그인. 
 
 #주말 : 셀레니움 듣기,  
 #.git 이 있어야 깃에서 관리 되는 파일
 #git commit -am"gbrl" => 수정된 사항 확인 
+
+#여성 vs 남성의 피드백 단어 , 그들의 레벨 
+
+#여러 번 소통하기 귀찮으니깐, 가상 공간을 만들어서 여기저기에서 가져와야할 것을 한 곳에 몰아서 가져온 것, 미리 정리해서 거기있는 것만 가져온다. : api 
+#화면에 구성되어있는 것을 가져온다 = 기존 방법 / 네트워크 -> 새로고침 -> 원하는 것 찾아. 통신되는 것들을 가져온다. 일관되고 정리하기 좋다. 

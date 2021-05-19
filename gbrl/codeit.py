@@ -1,53 +1,49 @@
-# -*- coding: utf-8 -*-
-
 import time
 from selenium import webdriver
-from openpyxl import Workbook
-
-wb = Workbook(write_only=True)
-ws = wb.create_sheet('플레이 리스트')
-ws.append(['제목', '해시태그', '좋아요 수', '곡 수'])
 
 # 웹 드라이버 설정
 driver = webdriver.Chrome()
 driver.implicitly_wait(3)
 
-driver.get('https://workey.codeit.kr/music')
-time.sleep(3)
+driver.get('https://workey.codeit.kr/costagram/index')
+time.sleep(1)
 
-'''
-driver.execute_script("window.scrollTo(0,200);")
+# 로그인
+driver.find_element_by_css_selector('.top-nav__login-link').click()
+time.sleep(1)
 
-scroll_height = driver.execute_script("return document.body.scrollHeight")
-print(scroll_height)
-'''
+driver.find_element_by_css_selector('.login-container__login-input').send_keys('codeit')
+driver.find_element_by_css_selector('.login-container__password-input').send_keys('datascience')
 
-# 현재 scrollHeight 가져오기
+driver.find_element_by_css_selector('.login-container__login-button').click()
+time.sleep(1)
+
+# 페이지 끝까지 스크롤
 last_height = driver.execute_script("return document.body.scrollHeight")
 
 while True:
-    # scrollHeight까지 스크롤
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);") #전체 길이 확인하기
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-    # 새로운 내용 로딩될때까지 기다림
     time.sleep(0.5)
 
-    # 새로운 내용 로딩됐는지 확인
     new_height = driver.execute_script("return document.body.scrollHeight")
     if new_height == last_height:
         break
     last_height = new_height
 
-# playlists = driver.find_element_by_css_selector('div.playlist__meta')
-playlists = driver.find_elements_by_css_selector('div.playlist__meta')
+# 모든 썸네일 요소 가져오기
+posts = driver.find_elements_by_css_selector('.post-list__post')
 
-for playlist in playlists:
-    title = playlist.find_element_by_css_selector('h3.title').text
-    hashtags = playlist.find_element_by_css_selector('p.tags').text
-    like_count = playlist.find_element_by_css_selector('span.data__like-count').text
-    # music_count = playlist.find_element_by_css_selector('span.data__music-cunt').text
-    music_count = playlist.find_element_by_css_selector('span.data__music-count').text
-﻿    ws.append([title, hashtags, like_count, music_count])
+for post in posts:
+    # 썸네일 클릭
+    post.click()
+    time.sleep(0.5)
+
+    ### 코드를 작성하세요 ###
+    driver.find_element_by_css_selector('.web_element.get_attribute("/images/costagram/posts/post1.jpg").split()')
+
+    # 닫기 버튼 클릭
+    driver.find_element_by_css_selector('.close-btn').click()
+    time.sleep(0.5)
 
 driver.quit()
-wb.save('플레이리스트_정보.xlsx')
