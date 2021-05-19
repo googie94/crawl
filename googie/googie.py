@@ -19,8 +19,8 @@ headers = {
 }
 # 
 url_list = []
-# 키워드 = 플랩풋볼후기
-keyword = '%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC%ED%9B%84%EA%B8%B0'
+# 키워드 = 플랩풋볼
+keyword = '%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC'
 keyword.encode('utf-8')
 
 # ========== 네이버 블로그 ==========
@@ -105,6 +105,8 @@ def getBlogPost(url):
 	# 				https://m.cafe.naver.com/ca-fe/web/cafes/re4mo/articles/1373558?useCafeId=false&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg%3D%3D.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6InJlNG1vIiwiYXJ0aWNsZUlkIjoxMzczNTU4LCJpc3N1ZWRBdCI6MTYyMDM0NzE1Njk1MX0%3D.o7ZbpmIn_4r8qJa8JQeWfcK62kLPmEtfrAaQ8NQrapc%3D&query=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC%ED%9B%84%EA%B8%B0
 	# https://apis.naver.com/cafe-web/cafe-articleapi/v2/cafes/re4mo/articles/1373558?useCafeId=false&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg%3D%3D.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6InJlNG1vIiwiYXJ0aWNsZUlkIjoxMzczNTU4LCJpc3N1ZWRBdCI6MTYyMDM0NzE1Njk1MX0%3D.o7ZbpmIn_4r8qJa8JQeWfcK62kLPmEtfrAaQ8NQrapc%3D&query=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC%ED%9B%84%EA%B8%B0
 	# https://apis.naver.com/cafe-web/cafe-articleapi/v2/cafes/re4mo/articles/1373558?useCafeId%3Dfalse&art%3DZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg%3D%3D.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6InJlNG1vIiwiYXJ0aWNsZUlkIjoxMzczNTU4LCJpc3N1ZWRBdCI6MTYyMDM1MDc4NjI4M30%3D.p5RYyeselnfi9_xsjTxxt-oI_AE3sPBQ1FzArgi-dzc%3D&query%3D%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC%ED%9B%84%EA%B8%B0
+	print('===============api===============')
+	print(api_url)
 	req = requests.get(api_url, headers=headers, data=payload).json()
 	print('===============제목===============')
 	title = req['result']['article']['subject']
@@ -114,23 +116,15 @@ def getBlogPost(url):
 	print('===============내용===============')
 	for content in bs.findAll('div', {'class': 'se-module se-module-text'}):
 		print(content.get_text())
-	print('===============내용===============')
+	print('===============댓글===============')
 	comment_list = req['result']['comments']['items']
 	for comment in comment_list:
 		print(comment['content'])
-	# req = Request(url)
-	# html = urlopen(req)
-	# bs = BeautifulSoup(html, 'html.parser')
-	# print(bs)
-	# title = bs.find('div', {'class': 'se-module se-module-text se-title-text'}).text
-	# print('===============제목===============')
-	# print(title)
-	# print('===============내용===============')
-	# for content in bs.findAll('div', {'class': 'se-module se-module-text'}):
-	# 	print(content.get_text())
 
 
-# 
+
+
+# RUN CODE
 total = getTotal(1)
 index = 1
 while index < total:
