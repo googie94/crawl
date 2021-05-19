@@ -1,27 +1,28 @@
-import requests
-from urllib.request import urlopen
-from bs4 import BeautifulSoup
+import re # 정규식 
+import requests as req # 웹 요청 
+from bs4 import BeautifulSoup # 웹 정보 추출 
+naver_cafe_url = "https://cafe.naver.com/re4mo/1513599" # 네이버 카페 주소 
+naver_cafe_article = "https://cafe.naver.com/nhn?clubid=" 
 
-import sys
-import io
-sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
-sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
+url = naver_cafe_url  # https://cafe.naver.com/re4mo 
+res = req.get(url=url) # URL 요청 
+soup = BeautifulSoup(res.text, 'lxml') 
+p_clubid = re.compile(r'var g_sClubId = \"(\w+)\"') # 정규식 설정 
+clubid = p_clubid.findall(str(soup.select('script')[0]))[0] # script태그 내에서 정규식에 해당하는 정보 추출 
 
-import  os, ssl
-if  ( not  os.environ.get ( 'PYTHONHTTPSVERIFY', '') and getattr (ssl, '_create_unverified_context', None)) : 
-	ssl._create_default_https_context =  ssl._create_unverified_context
+print(clubid)
 
-url = "https://sports.news.naver.com/news.nhn?oid=413&aid=0000118186"
-html = urlopen(url)
+# https://cafe.naver.com/CafeProfileView.nhn?clubid=21588277
+article_url = naver_cafe_article + clubid
+info_res = req.get(url=article_url)
+soup = BeautifulSoup(info_res.text, 'lxml')
 
-bs = BeautifulSoup(html ,'html.parser')
-result = bs.find('h3', {'class': 'title_text'})
+ths = soup.select('h3.title_text') 
 
-print(result.text)
+print(ths)
 
-contents = bs.find('div', {'class' : 'se-module se-module-text'})
+#clubid : 13988016
 
-print(contents.text)
 #urllib = url라이브러리 
 #bs = BeautifulSoup
 #html을 받고 그것에 접근할 수 있게 하는 함수
