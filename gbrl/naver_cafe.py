@@ -14,8 +14,6 @@ print(driver.find_element_by_xpath('//*[@id="postContent"]/div/div/div').text)
 
 driver.back()
 
-
-
 for i in range(1,5):
 	print(i)
 	click = driver.find_element_by_css_selector('#ct > div > div > div > div:nth-child(2) > div > div > div > div.SearchResultsListItemContainer.list_item_container.article_list > div:nth-child({}) > strong').format(i)
@@ -27,3 +25,6 @@ for i in range(1,5):
 
 driver.quit()
 
+#댓글 ,글, 뎃글의 작성일 
+#해야할 것 : 스크롤 끝까지 내리기. 전체 몇개인지 파악하기. 
+#csv 저장 
