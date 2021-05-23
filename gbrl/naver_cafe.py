@@ -1,36 +1,29 @@
 import time
-from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 
-from selenium.webdriver.common.keys import Keys
+driver = webdriver.Chrome('C:/Users/SAMSUNG/Downloads/chromedriver_win32/chromedriver.exe')
+driver.implicitly_wait(3)
 
-driver = webdriver.Chrome("C:/Users/SAMSUNG/Downloads/chromedriver_win32/chromedriver.exe")
+driver.get('https://m.cafe.naver.com/ca-fe/home/search/articles?q=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC')
+time.sleep(1)
 
-driver.get("https://m.search.naver.com/search.naver?where=m_article&sm=mtb_opt&query=")
-keyword = driver.find_element_by_name("query")
+driver.find_element_by_xpath('//*[@id="ct"]/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/a/div[1]/strong').click()
 
-keyword.send_keys("플랩풋볼")
+print(driver.find_element_by_xpath('//*[@id="ct"]/div[1]/div/h2').text)
+print(driver.find_element_by_xpath('//*[@id="postContent"]/div/div/div').text)
 
-time.sleep(2)
+driver.back()
 
-driver.find_element_by_id("nx_query").send_keys(Keys.ENTER)
 
-driver.find_element_by_xpath('//*[@id="addParemt"]/li[1]/div[1]/a').click()
 
-driver.switch_to.window
+for i in range(1,5):
+	print(i)
+	click = driver.find_element_by_css_selector('#ct > div > div > div > div:nth-child(2) > div > div > div > div.SearchResultsListItemContainer.list_item_container.article_list > div:nth-child({}) > strong').format(i)
+	click.click()
+	print(driver.find_element_by_xpath('//*[@id="ct"]/div[1]/div/h2').text)
+	print(driver.find_element_by_xpath('//*[@id="postContent"]/div/div/div').text)
+	driver.back()
 
-html = driver.page_source
-soups = bs(driver.page_source, 'html.parser')
 
-title = soups.find("h2.tit")
-print(title)
+driver.quit()
 
-para = soups.find_all("p")
-print(para)
-
-#driver.switch_to.default_content() #처음 상태로 되돌아옴
-
-#git add --all
-#git status 
-#git commit -am ""
-#git push origin master 

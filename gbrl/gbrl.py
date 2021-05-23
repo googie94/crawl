@@ -1,25 +1,35 @@
-import re # 정규식 
-import requests as req # 웹 요청 
-from bs4 import BeautifulSoup # 웹 정보 추출 
-naver_cafe_url = "https://cafe.naver.com/re4mo/1513599" # 네이버 카페 주소 
-naver_cafe_article = "https://cafe.naver.com/nhn?clubid=" 
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd 
+import numpy as np
 
-url = naver_cafe_url  # https://cafe.naver.com/re4mo 
-res = req.get(url=url) # URL 요청 
-soup = BeautifulSoup(res.text, 'lxml') 
-p_clubid = re.compile(r'var g_sClubId = \"(\w+)\"') # 정규식 설정 
-clubid = p_clubid.findall(str(soup.select('script')[0]))[0] # script태그 내에서 정규식에 해당하는 정보 추출 
+response = requests.get("https://m.cafe.naver.com/ArticleSearchList.nhn?search.query=%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC&search.menuid=&search.searchBy=0&search.sortBy=sim&search.clubid=13988016")
 
-print(clubid)
+response.status_code
+200
+dom = BeautifulSoup(response.text, "html.parser")
+post_elements = dom.select("#articleList ul.list_tit li")
+len(post_elements)
+20
+post_element = post_elements[0]
 
-# https://cafe.naver.com/CafeProfileView.nhn?clubid=21588277
-article_url = naver_cafe_article + clubid
-info_res = req.get(url=article_url)
-soup = BeautifulSoup(info_res.text, 'lxml')
+url = post_element.select_one("a").get("href")
+print(url)
 
-ths = soup.select('h3.title_text') 
+title = post_element.select_one("a").text.strip()
+print(title)
 
-print(ths)
+df = pd.DataFrame(columns=["Title", "URL"])
+df
+
+for post_element in post_elements:
+    url = post_element.select_one("a").get("href")
+    title = post_element.select_one("a").text.strip()
+    
+    data = {"URL": url, "Title": title}
+    df.loc[len(df)] = data   # row 에다 추가하는 부분
+
+    
 
 #clubid : 13988016
 
@@ -42,10 +52,10 @@ print(ths)
 #git push origin master 
 #commit add  
 
-#parser? , html.read?
-
 #자바스크립트 방식 로그인. 
 
-#주말 : 셀레니움 듣기,  
 #.git 이 있어야 깃에서 관리 되는 파일
 #git commit -am"gbrl" => 수정된 사항 확인 
+
+#여러 번 소통하기 귀찮으니깐, 가상 공간을 만들어서 여기저기에서 가져와야할 것을 한 곳에 몰아서 가져온 것, 미리 정리해서 거기있는 것만 가져온다. : api 
+#화면에 구성되어있는 것을 가져온다 = 기존 방법 / 네트워크 -> 새로고침 -> 원하는 것 찾아. 통신되는 것들을 가져온다. 일관되고 정리하기 좋다. 
