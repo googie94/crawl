@@ -19,7 +19,8 @@ import json
 # USER
 payload={}
 headers = {
-  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36'
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36',
+  'Referer': 'https://apis.naver.com/'
 }
 # 
 text_list = []
@@ -29,6 +30,18 @@ keyword = '%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC'
 keyword.encode('utf-8')
 
 
+# 블로그 댓글 모델
+# api_url = 'https://apis.naver.com/commentBox/cbox/web_naver_list_jsonp.json?ticket=blog&templateId=default_simple&pool=cbox9&_callback=jQuery1124023443552214558605_1621480751221&lang=ko&country=&objectId=59307270_201_222344386382&categoryId=&pageSize=50&indexSize=10&groupId=59307270&listType=OBJECT&pageType=default&page=1&initialize=true&userType=&useAltSort=true&replyPageSize=10&showReply=true&_=1621480751223'
+# req = requests.get(api_url, headers=headers, data=payload)
+# a = req.text.find('(')
+# txt = req.text[a+1:]
+# b = txt.find(')')
+# txt = txt[:b]
+# req = json.loads(txt)
+
+api_url = 'https://www.instagram.com/explore/tags/'+keyword+'/?__a=1'
+req = requests.get(api_url, headers=headers, data=payload).json()
+print(req)
 
 # ========== 네이버 블로그 ==========
 
@@ -66,13 +79,13 @@ def getBlogPost(url):
 
 
 # 
-total = getTotal(1)
-index = 1
-while index < total:
-	getBlogUrl(index)
-	for url in url_list:
-		getBlogPost(url)
-	index += 15
+# total = getTotal(1)
+# index = 1
+# while index < total:
+# 	getBlogUrl(index)
+# 	for url in url_list:
+# 		getBlogPost(url)
+# 	index += 15
 
 # ========================================
 # ========== 네이버 카페 ==========
@@ -168,7 +181,6 @@ while index < total:
 
 # import platform 
 # print(platform.architecture())
-
 
 
 
