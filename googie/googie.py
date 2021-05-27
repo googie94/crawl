@@ -58,31 +58,6 @@ keyword = '%ED%94%8C%EB%9E%A9%ED%92%8B%EB%B3%BC'
 keyword.encode('utf-8')
 
 
-# 블로그 댓글 모델
-# api_url = 'https://apis.naver.com/commentBox/cbox/web_naver_list_jsonp.json?ticket=blog&templateId=default_simple&pool=cbox9&_callback=jQuery1124023443552214558605_1621480751221&lang=ko&country=&objectId=59307270_201_222344386382&categoryId=&pageSize=50&indexSize=10&groupId=59307270&listType=OBJECT&pageType=default&page=1&initialize=true&userType=&useAltSort=true&replyPageSize=10&showReply=true&_=1621480751223'
-# https://apis.naver.com/commentBox/cbox/web_naver_list_jsonp.json
-# ?ticket=blog
-# &templateId=default_simple
-# &pool=cbox9
-# &lang=ko
-# &objectId=59307270_201_222344386382
-# &groupId=59307270
-
-# https://apis.naver.com/commentBox/cbox/web_naver_list_jsonp.json
-# ?ticket=blog
-# &templateId=default
-# &pool=cbox9
-# &lang=ko
-# &objectId=68395359_201_222301794649
-# &groupId=68395359
-# OK = blogNo + _ + 201 + _ + contentNo
-
-# 블로그 넘버 가져오기
-# blog_id 필요
-# https://m.blog.naver.com/rego/BlogInfo.nhn?blogId=nam4510
-
-
-
 # req = requests.get(api_url, headers=headers, data=payload)
 # a = req.text.find('(')
 # txt = req.text[a+1:]
@@ -95,7 +70,9 @@ keyword.encode('utf-8')
 # req = requests.get(api_url, headers=headers, data=payload).json()
 # print(req)
 
-# ========== 네이버 블로그 ==========
+# ========================================
+# ========== 네이버 블로그 ==================
+# ========================================
 
 def getTotal(index):
 	url = 'https://s.search.naver.com/p/blog/search.naver?where=m_blog&start={}&nlu_query=%7B%22r_category%22%3A%2223%22%7D&ssl=1&mobile_more=1&dkey=0&query='+keyword+'&nx_search_query='+keyword+'&spq=0&rev=44&_callback=jQuery224024759958364615287_1620305685738'.format(index)
@@ -122,25 +99,60 @@ def getBlogPost(url):
 	html = urlopen(url)
 	bs = BeautifulSoup(html, 'html.parser')
 	# print(bs)
+	date = bs.find('p', {'class': 'blog_date'}).text
 	title = bs.find('div', {'class': 'se-module se-module-text se-title-text'}).text
+	author = bs.find('strong', {'class': 'ell'}).text
 	print('===============제목===============')
+	print(date.rstrip())
+	print(author)
 	print(title)
 	print('===============내용===============')
 	for content in bs.findAll('div', {'class': 'se-module se-module-text'}):
 		print(content.get_text())
+	# SENT COMMENT
+	user_name = url.split('/')[3]
+	content_id = url.split('/')[4]
+	getBlogComment(user_name, content_id)
 
+def getBlogComment(user_name, content_id):
+	print('===============TEST===============')
+	url = 'https://blog.naver.com/PostList.nhn?blogId='+user_name
+	html = urlopen(url)
+	bs = BeautifulSoup(html.read(), 'html.parser')
+	scripts = bs.findAll("script")
+	for script in scripts:
+		if "blogNo" in script.text:
+			text = script.text
+			var = text.split("var")
+			for v in var:
+				if "blogNo" in v:
+					blog_no = v.split("'")[1]
+	api_url = 'https://apis.naver.com/commentBox/cbox/web_naver_list_jsonp.json?ticket=blog&templateId=default&pool=cbox9&lang=ko&objectId='
+	content_no = content_id
+	object_id = blog_no + '_201_' + content_no
+	api_url = api_url + object_id + '&groupId=' + blog_no
+	res = requests.get(api_url, headers=headers)
+	res = res.text
+	res = res[10:]
+	a = res.find(');')
+	res = res[:a]
+	res = json.loads(res)
+	print('===============댓글===============')
+	print(res['result']['count']['total'])
+	comments = res['result']['commentList']
+	for comment in comments:
+		if comment['contents'] == "": 
+			print('숨김')
+		else:
+			print(comment['objectId'])
+			print(comment['userName'])
+			print(comment['contents'])
+			print(comment['modTime'])
 
-# 
-total = getTotal(1)
-index = 1
-while index < total:
-	getBlogUrl(index)
-	for url in url_list:
-		getBlogPost(url)
-	index += 15
 
 # ========================================
-# ========== 네이버 카페 ==========
+# ========== 네이버 카페 ===================
+# ========================================
 # comment_list = []
 # # 
 # def getTotal(index):
@@ -211,20 +223,19 @@ while index < total:
 
 
 
-# # RUN CODE
-# total = getTotal(1)
-# index = 1
-# while index < total:
-# 	print(index)
-# 	if index > 50:
-# 		break;
-# 	# if index == 1:
-# 	getBlogUrl(index)
-# 	for url in url_list:
-# 		getBlogPost(url)
-# 		# break;
-# 	index += 15
+# RUN CODE
+total = getTotal(1)
+index = 1
+while index < total:
+	getBlogUrl(index)
+	for url in url_list:
+		getBlogPost(url)
+	index += 15
 
+
+
+# =========================
+# =========================
 # text_list = "".join(text_list)
 # okt = Okt()
 # nouns = okt.nouns(text_list)
