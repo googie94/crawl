@@ -16,6 +16,34 @@ if  ( not  os.environ.get ( 'PYTHONHTTPSVERIFY', '') and getattr (ssl, '_create_
 	ssl._create_default_https_context =  ssl._create_unverified_context
 # 
 import json
+
+
+# save mysql
+import pymysql
+
+host = 'sego.c3jqlg47t2v5.ap-northeast-2.rds.amazonaws.com'
+user = 'sego_admin'
+pw = 'googie0126!'
+db = 'sego'
+conn = pymysql.connect(host=host, user=user, passwd=pw, db=db, charset='utf8')
+cur = conn.cursor()
+cur.execute('USE scraping')
+
+def store_post():
+	cur.execute(
+		'INSERT INTO naver_post (post_id, category, title, content, created_date, like_count) VALUES (%s, %s, %s, %s, %s, %s)',
+		(post_id, category, title, content, created_date, like_count)
+	)
+	cur.connection.commit()
+
+def store_comment(post_id, content):
+	cur.execute(
+		'INSERT INTO naver_comment (post_id, content) VALUES (%s, %s)',
+		(post_id, content)
+	)
+	cur.connection.commit()
+
+
 # USER
 payload={}
 headers = {
@@ -32,6 +60,29 @@ keyword.encode('utf-8')
 
 # 블로그 댓글 모델
 # api_url = 'https://apis.naver.com/commentBox/cbox/web_naver_list_jsonp.json?ticket=blog&templateId=default_simple&pool=cbox9&_callback=jQuery1124023443552214558605_1621480751221&lang=ko&country=&objectId=59307270_201_222344386382&categoryId=&pageSize=50&indexSize=10&groupId=59307270&listType=OBJECT&pageType=default&page=1&initialize=true&userType=&useAltSort=true&replyPageSize=10&showReply=true&_=1621480751223'
+# https://apis.naver.com/commentBox/cbox/web_naver_list_jsonp.json
+# ?ticket=blog
+# &templateId=default_simple
+# &pool=cbox9
+# &lang=ko
+# &objectId=59307270_201_222344386382
+# &groupId=59307270
+
+# https://apis.naver.com/commentBox/cbox/web_naver_list_jsonp.json
+# ?ticket=blog
+# &templateId=default
+# &pool=cbox9
+# &lang=ko
+# &objectId=68395359_201_222301794649
+# &groupId=68395359
+# OK = blogNo + _ + 201 + _ + contentNo
+
+# 블로그 넘버 가져오기
+# blog_id 필요
+# https://m.blog.naver.com/rego/BlogInfo.nhn?blogId=nam4510
+
+
+
 # req = requests.get(api_url, headers=headers, data=payload)
 # a = req.text.find('(')
 # txt = req.text[a+1:]
@@ -39,9 +90,10 @@ keyword.encode('utf-8')
 # txt = txt[:b]
 # req = json.loads(txt)
 
-api_url = 'https://www.instagram.com/explore/tags/'+keyword+'/?__a=1'
-req = requests.get(api_url, headers=headers, data=payload).json()
-print(req)
+# 인스타그램 테스트
+# api_url = 'https://www.instagram.com/explore/tags/'+keyword+'/?__a=1'
+# req = requests.get(api_url, headers=headers, data=payload).json()
+# print(req)
 
 # ========== 네이버 블로그 ==========
 
@@ -79,13 +131,13 @@ def getBlogPost(url):
 
 
 # 
-# total = getTotal(1)
-# index = 1
-# while index < total:
-# 	getBlogUrl(index)
-# 	for url in url_list:
-# 		getBlogPost(url)
-# 	index += 15
+total = getTotal(1)
+index = 1
+while index < total:
+	getBlogUrl(index)
+	for url in url_list:
+		getBlogPost(url)
+	index += 15
 
 # ========================================
 # ========== 네이버 카페 ==========
