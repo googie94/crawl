@@ -22,19 +22,18 @@ from selenium import webdriver
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.keys import Keys
-from tqdm.notebook import tqdm
 import requests
 import time
-import sys
-import io
-import codecs
-sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
-sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
+# import sys
+# import io
+# import codecs
+# sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
+# sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
 # sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
-
+print('text')
 # 크롬 드라이버 생성
-driver = webdriver.Chrome('C:/Users/user/crawl/meoru/chromedriver.exe')
+driver = webdriver.Chrome()
 driver.implicitly_wait(3)
 
 # 들어가는거

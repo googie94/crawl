@@ -30,17 +30,17 @@ conn = pymysql.connect(host=host, user=user, passwd=pw, db=db, charset='utf8')
 cur = conn.cursor()
 cur.execute('USE sego')
 
-def store_post(short_code, content, created_date, like_count):
+def store_post(category, post_id, author, content, created_date, url):
 	cur.execute(
-		'INSERT INTO insta_post (short_code, content, created_date, like_count) VALUES (%s, %s, %s, %s)',
-		(short_code, content, created_date, like_count)
+		'INSERT INTO post_instagram (category, post_id, author, content, created_date, url) VALUES (%s, %s, %s, %s, %s, %s)',
+		(category, post_id, author, content, created_date, url)
 	)
 	cur.connection.commit()
 
-def store_tag(short_code, tag):
+def store_tag(post_id, tag):
 	cur.execute(
-		'INSERT INTO insta_tag (short_code, tag) VALUES (%s, %s)',
-		(short_code, tag)
+		'INSERT INTO post_instagram_tag (post_id, tag) VALUES (%s, %s)',
+		(post_id, tag)
 	)
 	cur.connection.commit()
 # def store_comment(post_id, content, created_date):
@@ -56,6 +56,10 @@ def store_tag(short_code, tag):
 # 		(post_id, tag)
 # 	)
 # 	cur.connection.commit()
+
+today = datetime.today().strftime('%Y%m%d')
+yesterday = datetime.today() - timedelta(days=1)
+yesterday = yesterday.strftime('%Y-%m-%d')
 
 # USER
 payload={}
@@ -81,12 +85,14 @@ def getPostList():
 	# 
 	posts = res['edge_hashtag_to_media']['edges']
 	print('POSTS LENGTH', len(posts))
+	time.sleep(10)
 	try:
+		category = 'instagram'
 		for index, post in enumerate(posts):
 			print('================= POST '+ str(index+1) +' =================')
 			print('==GET CODE')
-			short_code = post['node']['shortcode']
-			print(short_code)
+			post_id = post['node']['shortcode']
+			print(post_id)
 			print('== GET CONTENT')
 			content = post['node']['edge_media_to_caption']['edges'][0]['node']['text']
 			print(content)
@@ -95,16 +101,27 @@ def getPostList():
 			created_date = date.strftime('%Y-%m-%d %H:%M:%S')
 			print(created_date)
 			print('==GET LIKE')
-			like_count = post['node']['edge_liked_by']['count']
-			print(like_count)
+			author = post['node']['owner']['id']
+			print(author)
+			# print('==GET LIKE')
+			# like_count = post['node']['edge_liked_by']['count']
+			# print(like_count)
 			tags = re.findall(r"#(\w+)", content)
 			print(tags)
-
-			store_post(short_code, content, created_date, like_count)
+			url = 'https://www.instagram.com/p/'+post_id+'/'
+			#
+			# print('YESTERDAY', yesterday)
+			# if created_date > yesterday:
+			# 	print('CONFIRM')
+			# else:
+			# 	print('NONONO')
+			# 	is_next=False
+			# print(category, post_id, author, content, created_date, url)
+			store_post(category, post_id, author, content, created_date, url)
 			for tag in tags:
 				print('==GET TAG')
-				print(short_code, tag)
-				store_tag(short_code, tag)
+				print(post_id, tag)
+				store_tag(post_id, tag)
 			# print('GET THUMBNAIL','https://www.instagram.com/p/'+post['node']['shortcode']+'/media/?size=l')
 			# print('IS VIDEO',post['node']['is_video'])
 	except:
@@ -121,8 +138,6 @@ for i in range(100):
 
 # def getInstaPost():
 	
-
-
 # 간략 포스트
 # https://api.instagram.com/oembed/?url=http://instagram.com/p/B25TmunFTUK/
 # 포스트
