@@ -14,9 +14,9 @@ from selenium import webdriver
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.keys import Keys
-from tqdm.notebook import tqdm
 import requests
 import time
+<<<<<<< HEAD
 import re
 import sys
 import io
@@ -60,8 +60,18 @@ def store_post(code, name, content, hash_lst, dt):
 
 
 print('한글 GKSRMF')
+=======
+# import sys
+# import io
+# import codecs
+# sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
+# sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
+# sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+
+print('text')
+>>>>>>> ce52660ebf6982dc3228333af3147a0295adf1a7
 # 크롬 드라이버 생성
-driver = webdriver.Chrome('C:/Users/user/crawl/meoru/chromedriver.exe')
+driver = webdriver.Chrome()
 driver.implicitly_wait(3)
 
 # 들어가는거
@@ -271,6 +281,7 @@ for body in bodys:
 
 
 
+<<<<<<< HEAD
 # ================= POST 93 =================
 # ==GET CODE
 # BkwiLnChOkI
@@ -302,3 +313,7 @@ for body in bodys:
 # BkwiLnChOkI 축덕
 # ==GET TAG
 # BkwiLnChOkI 축스타그램
+=======
+# for cont in cont_lst:
+# 	print(cont.text)
+>>>>>>> ce52660ebf6982dc3228333af3147a0295adf1a7
