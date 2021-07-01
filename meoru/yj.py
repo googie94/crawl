@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from selenium.webdriver.common.keys import Keys
 import requests
 import time
-<<<<<<< HEAD
+# <<<<<<< HEAD
 import re
 import sys
 import io
@@ -60,7 +60,7 @@ def store_post(code, name, content, hash_lst, dt):
 
 
 print('한글 GKSRMF')
-=======
+# =======
 # import sys
 # import io
 # import codecs
@@ -69,7 +69,7 @@ print('한글 GKSRMF')
 # sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
 print('text')
->>>>>>> ce52660ebf6982dc3228333af3147a0295adf1a7
+# >>>>>>> ce52660ebf6982dc3228333af3147a0295adf1a7
 # 크롬 드라이버 생성
 driver = webdriver.Chrome()
 driver.implicitly_wait(3)
@@ -101,178 +101,214 @@ time.sleep(5)
 
 # 플랩풋볼 드가기
 driver.get(f'https://www.instagram.com/explore/tags/{keyword}')
-time.sleep(2)
+time.sleep(5)
 
 # 본문 클릭해서 들어가기
-bodys = driver.find_elements_by_css_selector('#react-root > section > main > article > div.EZdmt div._9AhH0')
+# bodys = driver.find_elements_by_css_selector('#react-root > section > main > article > div.EZdmt div._9AhH0')
+bodys = driver.find_elements_by_css_selector('#react-root > section > main > article div.v1Nh3.kIKUG._bz0w')
+# bodys = soup.select_all('#react-root > section > main > article div.v1Nh3.kIKUG._bz0w')
+# bodys = soup.select('#react-root > section > main > article div.Nnq7C.weEfm')
+
 # print(body_list)
-# print(bodys)
+#react-root > section > main > article > div:nth-child(3) > div > div:nth-child(2)
+bodys[9].click()
+# for body in bodys:
+# 	print(body[4])
 
-for body in bodys:
-	# print(body)
-	body.click()
+# 첫 게시글
+print(f'='*20 + 'post 1' + '='*20)
 
-	# 첫 게시글
-	print(f'='*20 + 'post 1' + '='*20)
+# 첫 게시글 코드
+print('==GET CODE')
+driver.switch_to.window(driver.window_handles[-1])
+driver.implicitly_wait(3)
+url = driver.current_url
+f_code = url[-12:-1]
+# print(f_code)
+code = f_code
 
-	# 첫 게시글 코드
-	print('==GET CODE')
-	driver.switch_to.window(driver.window_handles[-1])
-	driver.implicitly_wait(3)
-	url = driver.current_url
-	f_code = url[-12:-1]
-	# print(f_code)
-	code = f_code
-
-	# 첫 게시글 이름
-	print('==GET NAME')
-	names = driver.find_elements_by_css_selector('div.o-MQd a.sqdOP')
+# 첫 게시글 이름
+print('==GET NAME')
+names = driver.find_elements_by_css_selector('div.o-MQd a.sqdOP')
+# print(name)
+for n in names:
+	name = n.text
 	# print(name)
-	for n in names:
-		name = n.text
-		# print(name)
 
-	# 게시글 내 본문
-	print('==GET CONTENET')
-	cont = driver.find_elements_by_css_selector('body > div._2dDPU.CkGkG > div.zZYga > div > article > div.eo2As > div.EtaWk > ul div.C4VMK > span')
-	# print(cont[0].text)
-	content = cont[0].text
+# 게시글 내 본문
+print('==GET CONTENET')
+cont = driver.find_elements_by_css_selector('body > div._2dDPU.CkGkG > div.zZYga > div > article > div.eo2As > div.EtaWk > ul div.C4VMK > span')
+# print(cont[0].text)
+content = cont[0].text
 
-	# 해시태그
+# 해시태그
+print('==GET TAG')
+hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
+print(hashs)
+hash_lst = []
+# print(hashs.text)
+
+for hash in hashs:
+	print(hashs)
+	# 정규화
+	hash = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
+	print(hash)
+	hash_lst.append(hash)
+	print(hash_lst)
+	print(len(hash_lst))
+
+for tag in hash_lst:
 	print('==GET TAG')
-	hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
-	hash_lst = []
-	# print(hashs.text)
-	try:
+	hashtag = tag
+	# print(code + ' ' + hashtag)
+
+if len(hash_lst) == 0:
+	hash_lst.append('no_hash')
+	print(hash_lst)
+
+# 첫 게시글 날짜
+html = driver.page_source
+soup = BeautifulSoup(html, 'html.parser')
+print('==GET DATE')
+try:
+	date = soup.select('time._1o9PC.Nzb55')
+	for d in date:
+		dt = d['datetime'][:10]
+		# print(dt)
+except:
+	dt = 'no_date'
+	# print(dt)
+
+
+# 첫 게시글 sql로 저장
+print(code, name, content, hash_lst, dt)
+store_post(code, name, content, hash_lst, dt)
+
+
+# 다음 버튼
+next_lst = driver.find_elements_by_css_selector('div._2dDPU.CkGkG > div.EfHg9 a._65Bje.coreSpriteRightPaginationArrow')
+
+page = 2
+
+while len(next_lst) > 0:
+
+	# 다음 버튼 누르기
+	for next in next_lst:
+
+		# 두번째 게시글부터
+		print(f'================= POST {page} =================')
+		next.click()
+
+		driver.switch_to.window(driver.window_handles[-1])
+		driver.implicitly_wait(5)
+
+		# 두번째 게시글부터 코드
+		print('==GET CODE')
+		try:
+			url = driver.current_url
+			s_code = url[-12:-1]
+			code = s_code
+			# print(code)
+		except:
+			code = 'no_code'
+			# print(code)
+
+		# 두번째 게시글부터 이름
+		print('==GET NAME')
+		try:
+			name_lst = driver.find_elements_by_css_selector('div.o-MQd a.sqdOP')
+			for n in name_lst:
+				name = n.text
+				# print(name)
+
+		except:
+			name = 'no_name'
+			# print(name)
+
+		# 두번째 게시글부터 본문
+		print('==GET CONTENET')
+		try:
+			cont = driver.find_elements_by_css_selector('ul div.C4VMK > span')
+			# print(cont[0].text)
+			content = cont[0].text
+		except:
+			content = 'no_content'
+
+		# 두번째 게시글부터 해시태그
+		print('==GET TAG')
+		hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
+		hash_lst = []
+
 		for hash in hashs:
+			# print(hashs)
 			# 정규화
 			hash = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
+			# print(hash)
 			hash_lst.append(hash)
-		# print(hash_lst)
+			# print(hash_lst)
+			# print(len(hash_lst))
 
-		for tag in hash_lst:
-			print('==GET TAG')
-			hashtag = tag
+		# for tag in hash_lst:
+		# 	print('==GET TAG')
+		# 	hashtag = tag
 			# print(code + ' ' + hashtag)
 
-	except:
-		hash_lst.append('no_hash')
-		# print(hash_lst)
+		if len(hash_lst) == 0:
+			hash_lst.append('no_hash')
+			# print(hash_lst)
 
-	# 첫 게시글 날짜
-	html = driver.page_source
-	soup = BeautifulSoup(html, 'html.parser')
-	print('==GET DATE')
-	try:
-		date = soup.select('time._1o9PC.Nzb55')
-		for d in date:
-			dt = d['datetime'][:10]
+
+		# try:
+		# 	hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
+		# 	for hash in hashs:
+		# 		hash = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
+		# 		hash_lst.append(hash)
+		# 	print(hash_lst)
+		# 	for tag in hash_lst:
+		# 		print('==GET TAG')
+		# 		hashtag = tag
+		# 		print(code + ' ' + hashtag)
+
+		# except:
+		# 	print('no_hash')
+		# 	hash_lst.append('no_hash')
+		
+		# 오늘 날짜
+		print('==TODAY')
+		dt_now = datetime.datetime.now()
+		today = dt_now.date()
+		print(today)
+
+		# 두번째 게시글부터 날짜
+		print('==GET DATE')
+		time.sleep(3)
+		html = driver.page_source
+		soup = BeautifulSoup(html, 'html.parser')
+		try:
+			date = soup.select('time._1o9PC.Nzb55')
+			for d in date:
+				dt = d['datetime'][:10]
+				# print(dt)
+
+		except:
+			dt = 'no_date'
 			# print(dt)
-	except:
-		dt = 'no_date'
-		# print(dt)
+
+		# if today == dt:
+		# 	print('GO TO APP')
 
 
-	# 첫 게시글 sql로 저장
-	print(code, name, content, hash_lst, dt)
+		print(code, name, content, hash_lst, dt)
+		store_post(code, name, content, hash_lst, dt)
 
 
-	# 다음 버튼
-	next_lst = driver.find_elements_by_css_selector('div._2dDPU.CkGkG > div.EfHg9 a')
+		page += 1
 
-	page = 2
+		# print(code, name, content, hash_lst, dt)
+		# store_post(code, name, content, hash_lst, dt)
 
-	while len(next_lst) > 0:
-
-		# 다음 버튼 누르기
-		for next in next_lst:
-
-			# 두번째 게시글부터
-			print(f'================= POST {page} =================')
-			next.click()
-
-			driver.switch_to.window(driver.window_handles[-1])
-			driver.implicitly_wait(5)
-
-			# 두번째 게시글부터 코드
-			print('==GET CODE')
-			try:
-				url = driver.current_url
-				code = url[-12:-1]
-				print(code)
-			except:
-				code = 'no_code'
-
-			# 두번째 게시글부터 이름
-			print('==GET NAME')
-			try:
-				name_lst = driver.find_elements_by_css_selector('div.o-MQd a.sqdOP')
-				for n in name_lst:
-					name = n.text
-					print(name)
-
-			except:
-				name = 'no_name'
-				print(name)
-
-			# 두번째 게시글부터 본문
-			print('==GET CONTENET')
-			try:
-				cont = driver.find_elements_by_css_selector('ul div.C4VMK > span')
-				print(cont[0].text)
-				content = cont[0].text
-			except:
-				print('no_content')
-				content = 'no_content'
-
-			# 두번째 게시글부터 해시태그
-			hash_lst = []
-			try:
-				hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
-				for hash in hashs:
-					hash = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
-					hash_lst.append(hash)
-				print(hash_lst)
-				for tag in hash_lst:
-					print('==GET TAG')
-					hashtag = tag
-					print(code + ' ' + hashtag)
-
-			except:
-				print('no_hash')
-				hash_lst.append('no_hash')
-			
-			# 오늘 날짜
-			print('==TODAY')
-			dt_now = datetime.datetime.now()
-			today = dt_now.date()
-			print(today)
-
-			# 두번째 게시글부터 날짜
-			print('==GET DATE')
-			time.sleep(3)
-			html = driver.page_source
-			soup = BeautifulSoup(html, 'html.parser')
-			try:
-				date = soup.select('time._1o9PC.Nzb55')
-				for d in date:
-					dt = d['datetime'][:10]
-					print(dt)
-
-			except:
-				dt = 'no_date'
-				print(dt)
-
-			# if today == dt:
-			# 	print('GO TO APP')
-
-
-			page += 1
-
-	else:
-		print('페이지 오류입니다')
-
-	store_post(code, name, content, hash_lst, dt)
+else:
+	print('페이지 오류입니다')
 
 
 
@@ -281,7 +317,7 @@ for body in bodys:
 
 
 
-<<<<<<< HEAD
+# <<<<<<< HEAD
 # ================= POST 93 =================
 # ==GET CODE
 # BkwiLnChOkI
@@ -313,7 +349,7 @@ for body in bodys:
 # BkwiLnChOkI 축덕
 # ==GET TAG
 # BkwiLnChOkI 축스타그램
-=======
+# =======
 # for cont in cont_lst:
 # 	print(cont.text)
->>>>>>> ce52660ebf6982dc3228333af3147a0295adf1a7
+# >>>>>>> ce52660ebf6982dc3228333af3147a0295adf1a7
