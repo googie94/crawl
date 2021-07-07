@@ -28,7 +28,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
 # sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
-# SQL에 담기
+# meoru_gram SQL에 담기
 host = 'sego.c3jqlg47t2v5.ap-northeast-2.rds.amazonaws.com'
 user = 'sego_admin'
 pw = 'googie0126!'
@@ -36,12 +36,24 @@ db = 'sego'
 conn = pymysql.connect(host=host, user=user, passwd=pw, db=db, charset='utf8')
 cur = conn.cursor()
 cur.execute('USE scraping')
-def store_post(code, name, content, hash_lst, dt):
+
+cur. execute( 'DELETE FROM meoru_gram')
+cur. execute( 'DELETE FROM meoru_tag')
+
+def store_post(code, name, content, dt):
 	cur.execute(
-		'INSERT INTO meoru_gram (code, name, content, hash_lst, dt) VALUES (%s, %s, %s, %s, %s)',
-		(code, name, content, hash_lst, dt)
+		'INSERT INTO meoru_gram (code, name, content, dt) VALUES (%s, %s, %s, %s)',
+		(code, name, content, dt)
 	)
 	cur.connection.commit()
+
+def store_tag(code, hashtag):
+	cur.execute(
+		'INSERT INTO meoru_tag (code, hashtag) VALUES (%s, %s)',
+		(code, hashtag)
+	)
+	cur.connection.commit()
+
 
 # host = 'sego.c3jqlg47t2v5.ap-northeast-2.rds.amazonaws.com'
 # user = 'sego_admin'
@@ -112,6 +124,7 @@ bodys = driver.find_elements_by_css_selector('#react-root > section > main > art
 # print(body_list)
 #react-root > section > main > article > div:nth-child(3) > div > div:nth-child(2)
 bodys[9].click()
+time.sleep(3)
 # for body in bodys:
 # 	print(body[4])
 
@@ -120,12 +133,12 @@ print(f'='*20 + 'post 1' + '='*20)
 
 # 첫 게시글 코드
 print('==GET CODE')
-driver.switch_to.window(driver.window_handles[-1])
-driver.implicitly_wait(3)
+# driver.switch_to.window(driver.window_handles[-1])
+# driver.implicitly_wait(3)
 url = driver.current_url
 f_code = url[-12:-1]
-# print(f_code)
 code = f_code
+print(code)
 
 # 첫 게시글 이름
 print('==GET NAME')
@@ -133,38 +146,19 @@ names = driver.find_elements_by_css_selector('div.o-MQd a.sqdOP')
 # print(name)
 for n in names:
 	name = n.text
-	# print(name)
+	print(name)
 
 # 게시글 내 본문
 print('==GET CONTENET')
 cont = driver.find_elements_by_css_selector('body > div._2dDPU.CkGkG > div.zZYga > div > article > div.eo2As > div.EtaWk > ul div.C4VMK > span')
-# print(cont[0].text)
 content = cont[0].text
+print(content)
 
-# 해시태그
-print('==GET TAG')
-hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
-print(hashs)
-hash_lst = []
-# print(hashs.text)
-
-for hash in hashs:
-	print(hashs)
-	# 정규화
-	hash = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
-	print(hash)
-	hash_lst.append(hash)
-	print(hash_lst)
-	print(len(hash_lst))
-
-for tag in hash_lst:
-	print('==GET TAG')
-	hashtag = tag
-	# print(code + ' ' + hashtag)
-
-if len(hash_lst) == 0:
-	hash_lst.append('no_hash')
-	print(hash_lst)
+# 오늘 날짜
+print('==TODAY')
+dt_now = datetime.datetime.now()
+today = dt_now.date()
+print(today)
 
 # 첫 게시글 날짜
 html = driver.page_source
@@ -174,16 +168,42 @@ try:
 	date = soup.select('time._1o9PC.Nzb55')
 	for d in date:
 		dt = d['datetime'][:10]
-		# print(dt)
+		print(dt)
 except:
 	dt = 'no_date'
-	# print(dt)
+	print(dt)
+
+# 해시태그
+print('==GET TAG')
+hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
+# print(hashs)
+hash_lst = []
+
+for hash in hashs:
+	# 정규화
+	print('==GET TAG')
+	hashtag = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
+	print(code + ' ' + hashtag)
+	hash_lst.append(hashtag)
+
+	#meoru_tag에 code, hashtag 저장
+	if dt == '2021-07-07' or '2021-07-06':
+		store_tag(code, hashtag)
+
+print(hash_lst)
+
+if len(hash_lst) == 0:
+	hashtag = 'no_hash'
+	hash_lst.append(hashtag)
+	print(hash_lst)
+
+	if dt == '2021-07-07' or '2021-07-06':
+		store_tag(code, hashtag)
 
 
-# 첫 게시글 sql로 저장
-print(code, name, content, hash_lst, dt)
-store_post(code, name, content, hash_lst, dt)
-
+# 첫 게시글 meoru_gram에 sql로 post 저장
+if dt == '2021-07-07' or '2021-07-06':
+	store_post(code, name, content, dt)
 
 # 다음 버튼
 next_lst = driver.find_elements_by_css_selector('div._2dDPU.CkGkG > div.EfHg9 a._65Bje.coreSpriteRightPaginationArrow')
@@ -208,10 +228,10 @@ while len(next_lst) > 0:
 			url = driver.current_url
 			s_code = url[-12:-1]
 			code = s_code
-			# print(code)
+			print(code)
 		except:
 			code = 'no_code'
-			# print(code)
+			print(code)
 
 		# 두번째 게시글부터 이름
 		print('==GET NAME')
@@ -219,60 +239,22 @@ while len(next_lst) > 0:
 			name_lst = driver.find_elements_by_css_selector('div.o-MQd a.sqdOP')
 			for n in name_lst:
 				name = n.text
-				# print(name)
+				print(name)
 
 		except:
 			name = 'no_name'
-			# print(name)
+			print(name)
 
 		# 두번째 게시글부터 본문
 		print('==GET CONTENET')
 		try:
 			cont = driver.find_elements_by_css_selector('ul div.C4VMK > span')
-			# print(cont[0].text)
 			content = cont[0].text
+			print(content)
 		except:
 			content = 'no_content'
+			print(content)
 
-		# 두번째 게시글부터 해시태그
-		print('==GET TAG')
-		hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
-		hash_lst = []
-
-		for hash in hashs:
-			# print(hashs)
-			# 정규화
-			hash = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
-			# print(hash)
-			hash_lst.append(hash)
-			# print(hash_lst)
-			# print(len(hash_lst))
-
-		# for tag in hash_lst:
-		# 	print('==GET TAG')
-		# 	hashtag = tag
-			# print(code + ' ' + hashtag)
-
-		if len(hash_lst) == 0:
-			hash_lst.append('no_hash')
-			# print(hash_lst)
-
-
-		# try:
-		# 	hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
-		# 	for hash in hashs:
-		# 		hash = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
-		# 		hash_lst.append(hash)
-		# 	print(hash_lst)
-		# 	for tag in hash_lst:
-		# 		print('==GET TAG')
-		# 		hashtag = tag
-		# 		print(code + ' ' + hashtag)
-
-		# except:
-		# 	print('no_hash')
-		# 	hash_lst.append('no_hash')
-		
 		# 오늘 날짜
 		print('==TODAY')
 		dt_now = datetime.datetime.now()
@@ -288,24 +270,59 @@ while len(next_lst) > 0:
 			date = soup.select('time._1o9PC.Nzb55')
 			for d in date:
 				dt = d['datetime'][:10]
-				# print(dt)
+				print(dt)
 
 		except:
 			dt = 'no_date'
-			# print(dt)
+			print(dt)
 
-		# if today == dt:
-		# 	print('GO TO APP')
+		# 두번째 게시글부터 해시태그
+		print('==GET TAG')
+		hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
+		hash_lst = []
 
+		for hash in hashs:
+			print('==GET TAG')
+			# 정규화
+			hashtag = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
+			print(code + ' ' + hashtag)
+			hash_lst.append(hashtag)
 
-		print(code, name, content, hash_lst, dt)
-		store_post(code, name, content, hash_lst, dt)
+			# meoru_tag에 code, hashtag 저장
+			if dt == '2021-07-07' or '2021-07-06':
+				store_tag(code, hashtag)
+		
+		print(hash_lst)
+
+		if len(hash_lst) == 0:
+			hashtag = 'no_hash'
+			hash_lst.append(hashtag)
+			print(hash_lst)
+
+			if dt == '2021-07-07' or '2021-07-06':
+				store_tag(code, hashtag)
+
+		# try:
+		# 	hashs = driver.find_elements_by_css_selector('div.C4VMK > span > a')
+		# 	for hash in hashs:
+		# 		hash = re.sub('[^0-9a-zA-Zㄱ-ㅣ가-힣!?]', "", hash.text)
+		# 		hash_lst.append(hash)
+		# 	print(hash_lst)
+		# 	for tag in hash_lst:
+		# 		print('==GET TAG')
+		# 		hashtag = tag
+		# 		print(code + ' ' + hashtag)
+
+		# except:
+		# 	print('no_hash')
+		# 	hash_lst.append('no_hash')
+
+		if dt == '2021-07-07' or '2021-07-06':
+			store_post(code, name, content, dt)
 
 
 		page += 1
 
-		# print(code, name, content, hash_lst, dt)
-		# store_post(code, name, content, hash_lst, dt)
 
 else:
 	print('페이지 오류입니다')
